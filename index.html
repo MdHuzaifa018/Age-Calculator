@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Age Calculator</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        width: 100vw;
+        font-family: 'Segoe UI', 'Lucida Sans', Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* Gradient overlay on image */
+        background: linear-gradient(135deg, rgba(58,123,213,0.7) 0%, rgba(0,210,255,0.7) 100%), url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1500&q=80') no-repeat center center fixed;
+        background-size: cover;
+        overflow: hidden;
+        animation: bgFadeIn 2s ease;
+      }
+      @keyframes bgFadeIn {
+        from { filter: blur(10px) brightness(0.7); }
+        to { filter: blur(0) brightness(1); }
+      }
+
+      #box {
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(12px) saturate(180%);
+        -webkit-backdrop-filter: blur(12px) saturate(180%);
+        border-radius: 24px;
+        border: 1.5px solid rgba(255, 255, 255, 0.25);
+        padding: 40px 32px 32px 32px;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        animation: cardPopIn 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      @keyframes cardPopIn {
+        0% { transform: scale(0.8) translateY(60px); opacity: 0; }
+        100% { transform: scale(1) translateY(0); opacity: 1; }
+      }
+
+      label {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 18px;
+        display: block;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      }
+
+      input[type="date"] {
+        margin-top: 10px;
+        padding: 12px 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        width: 100%;
+        box-sizing: border-box;
+        background: rgba(255,255,255,0.7);
+        color: #222;
+        outline: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transition: box-shadow 0.3s, background 0.3s;
+      }
+      input[type="date"]:focus {
+        background: rgba(255,255,255,0.95);
+        box-shadow: 0 4px 16px rgba(58,123,213,0.18);
+      }
+
+      button {
+        margin-top: 22px;
+        padding: 12px 32px;
+        background: linear-gradient(90deg, #3a7bd5 0%, #00d2ff 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(58,123,213,0.18);
+        transition: transform 0.18s, box-shadow 0.18s, background 0.3s;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+      button::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255,255,255,0.18);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.4s cubic-bezier(0.23, 1, 0.32, 1), height 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        z-index: 0;
+      }
+      button:hover {
+        transform: translateY(-2px) scale(1.04);
+        box-shadow: 0 6px 24px rgba(58,123,213,0.22);
+        background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+      }
+      button:active::before {
+        width: 200%;
+        height: 200%;
+      }
+      button:active {
+        transform: scale(0.98);
+      }
+
+      p#ageResult {
+        margin-top: 28px;
+        font-size: 1.18rem;
+        color: #fff;
+        font-weight: 500;
+        min-height: 32px;
+        letter-spacing: 0.2px;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.13);
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.7s cubic-bezier(0.23, 1, 0.32, 1), transform 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      p#ageResult.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      @media (max-width: 600px) {
+        #box {
+          padding: 24px 8px 18px 8px;
+          max-width: 95vw;
+        }
+        label {
+          font-size: 1.1rem;
+        }
+        button {
+          font-size: 1rem;
+          padding: 10px 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="box">
+      <label for="dateOfBirth">Enter your date of birth</label>
+      <input id="dateOfBirth" type="date" />
+      <button onclick="findMyAge()">Check</button>
+      <p id="ageResult"></p>
+
+      <script>
+        function findMyAge() {
+          let birthDateInput = document.getElementById("dateOfBirth").value
+
+          let birthDate = new Date(birthDateInput)
+
+          let currentDate = new Date()
+
+          if (!birthDateInput || birthDate > currentDate) {
+            document.getElementById("ageResult").innerText =
+              "Please choose a valid birth date."
+            document.getElementById("ageResult").classList.add('show')
+            return
+          }
+
+          // Calculate difference in years, months, days
+          let years = currentDate.getFullYear() - birthDate.getFullYear()
+          let months = currentDate.getMonth() - birthDate.getMonth()
+          let days = currentDate.getDate() - birthDate.getDate()
+
+          // Adjust if days are negative
+          if (days < 0) {
+            months--
+            // Get number of days in previous month
+            let daysInLastMonth = new Date(
+              currentDate.getFullYear(),
+              currentDate.getMonth(),
+              0
+            ).getDate()
+            days += daysInLastMonth
+          }
+
+          // Adjust if months are negative
+          if (months < 0) {
+            years--
+            months += 12
+          }
+
+          // Show the result
+          document.getElementById(
+            "ageResult"
+          ).innerText = `You are ${years} years, ${months} months, and ${days} days old.`
+          document.getElementById("ageResult").classList.add('show')
+        }
+        // Remove animation class when input changes
+        document.getElementById('dateOfBirth').addEventListener('input', function() {
+          document.getElementById('ageResult').classList.remove('show')
+        })
+      </script>
+    </div>
+    <footer id="footer">
+      &copy;All rights reserved.Made with <span style="color: #f7971e">&#10084;</span> by Huzaif
+    </footer>
+    <script>
+      // Set current year in footer
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <style>
+      #footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100vw;
+        padding: 16px 0 10px 0;
+        background: rgba(255,255,255,0.13);
+        backdrop-filter: blur(8px) saturate(160%);
+        -webkit-backdrop-filter: blur(8px) saturate(160%);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 500;
+        text-align: center;
+        letter-spacing: 0.5px;
+        box-shadow: 0 -2px 16px 0 rgba(31, 38, 135, 0.13);
+        border-top: 1px solid rgba(255,255,255,0.18);
+        z-index: 10;
+        opacity: 0;
+        animation: footerFadeIn 1.5s 1.2s forwards;
+      }
+      @keyframes footerFadeIn {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @media (max-width: 600px) {
+        #footer {
+          font-size: 0.95rem;
+          padding: 10px 0 6px 0;
+        }
+      }
+    </style>
+  </body>
+</html>
